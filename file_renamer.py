@@ -25,9 +25,6 @@ reset = '\u001b[0m'
 
 def rename_files(target_path, replacements):
     print(f'Selected root folder: {target_path}\n')
-    print('Replacement rules: ')
-    for substring, replacement in replacements.items():
-        print(f"'{substring}' will become '{replacement}'")
 
     confirm_string = 'Are you sure you wish to proceed with rename operation? (y/n): '
     confirm_rename = input(confirm_string)
