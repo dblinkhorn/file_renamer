@@ -1,6 +1,9 @@
 # !/usr/bin/python
 
 import os
+from datetime import datetime
+
+current_time = datetime.now()
 
 # specify path to root folder
 target_path = "/home/example-user/example-folder"
@@ -8,60 +11,96 @@ target_path = "/home/example-user/example-folder"
 # specify substring replacements
 replacements = {
     # target: replacement
-    ' - ': '-',
-    ' -': '-',
-    ' _ ': '-',
-    '%20': '-',
-    '!': '',
-    "'": '',
-    ' ': '-',
+    '%20': '_',
+    ' ': '_',
 }
 
-# operation output colors
-yellow = '\u001b[33m'
-green = '\u001b[32m'
-reset = '\u001b[0m'
+renamed_count = 0
+renamed_files = []
 
 
-def rename_files(target_path, replacements):
-    print(f'Selected root folder: {target_path}\n')
+def get_counts(target_path):
+    file_count = 0
+    dir_count = 0  # does not include target_path dir
+
+    for _, dirs, files in os.walk(target_path):
+        file_count += len(files)
+        dir_count += len(dirs)
+
+    return [file_count, dir_count]
+
+
+def set_confirmation(target_path):
+    file_count, dir_count = get_counts(target_path)
+
+    print(f'\nSelected root folder: {target_path}')
+    count_string = f'{file_count} files, including {dir_count} sub-directories, will be affected...\n'
+
+    if (file_count):
+        print(count_string)
+    else:
+        return print('\nOperation aborted: No files found.')
 
     confirm_string = 'Are you sure you wish to proceed with rename operation? (y/n): '
     confirm_rename = input(confirm_string)
 
-    is_confirmed = confirm_rename.lower() == 'y' or confirm_rename.lower() == 'yes'
+    return confirm_rename.lower() == 'y' or confirm_rename.lower() == 'yes'
+
+
+def perform_rename(file, root):
+    # save original filename
+    original_filename = file
+
+    # set original file path
+    original_path = os.path.join(root, file)
+
+    # replace substrings
+    for substring, replacement in replacements.items():
+        if substring in file:
+            file = file.replace(substring, replacement)
+
+            # force lowercase
+            # file = file.lower()
+
+            # force uppercase
+            # file = file.upper()
+
+    # set new file path
+    new_path = os.path.join(root, file)
+
+    # output processing if file name was changed
+    if original_path != new_path:
+        global renamed_count
+        renamed_count += 1
+
+        # rename file
+        os.rename(original_path, new_path)
+
+        output_string = f"'{original_filename}' --> '{file}'"
+        renamed_files.append(output_string)
+        print(output_string)
+
+
+def rename_files(target_path):
+    is_confirmed = set_confirmation(target_path)
 
     if (is_confirmed):
-        for root, dirs, files in os.walk(target_path):
-            for dir in dirs:
-                for name in files:
-                    # save original name
-                    original_name = name
+        for root, _, files in os.walk(target_path):
+            for file in files:
+                perform_rename(file, root)
 
-                    # set original file path
-                    original_path = os.path.join(root, name)
+        completed_string = f'\nOperation completed: {renamed_count} total files were renamed.'
+        print(completed_string)
 
-                    # replace substrings
-                    for substring, replacement in replacements.items():
-                        if substring in name:
-                            name = name.replace(substring, replacement)
+        # log results
+        with open(f'{current_time}.txt', 'a') as log:
+            log.write(f'Rename operation completed at {current_time}')
+            log.write(f'\n{renamed_count} total files were renamed.\n\n')
+            log.write('\n'.join(renamed_files))
 
-                            # force lowercase
-                            # name = name.lower()
-
-                            # force uppercase
-                            # name = name.upper()
-
-                    # set new file path
-                    new_path = os.path.join(root, name)
-
-                    # output processing if file name was changed
-                    if original_path != new_path:
-                        # rename file
-                        os.rename(original_path, new_path)
-
-                        output_string = f"{yellow}'{original_name}'{reset} >>> {green}'{name}'{reset}"
-                        print(output_string)
+    else:
+        print('\nOperation aborted: Failed to confirm.')
 
 
-rename_files(target_path, replacements)
+get_counts(target_path)
+rename_files(target_path)
