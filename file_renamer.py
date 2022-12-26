@@ -8,7 +8,7 @@ from datetime import datetime
 # [ USER OPTIONS ] ************************************************************
 
 # specify path to root folder
-target_path = "/home/example-user/example-folder"
+target_path = '/home/example-user/example-folder'
 
 # specify substring replacements
 replacements = {
