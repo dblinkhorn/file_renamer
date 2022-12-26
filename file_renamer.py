@@ -8,14 +8,13 @@ from datetime import datetime
 # [ USER OPTIONS ] ************************************************************
 
 # specify path to root folder
-target_path = "/home/dblinkhorn/Downloads/test"
+target_path = "/home/example-user/example-folder"
 
 # specify substring replacements
 replacements = {
     # target: replacement
     '%20': '_',
     ' ': '_',
-    ' - ': '-',
 }
 
 # change either values below to True to force desired case, but not both
