@@ -1,6 +1,7 @@
 # !/usr/bin/python
 
 import os
+import sys
 from datetime import datetime
 
 
@@ -17,9 +18,9 @@ replacements = {
     ' - ': '-',
 }
 
-# change either values below to True to force case, but not both
+# change either values below to True to force desired case, but not both
 # only affects files that include a defined substring in 'replacements'
-lowercase = True
+lowercase = False
 uppercase = False
 
 # *****************************************************************************
@@ -46,10 +47,11 @@ def set_confirmation(target_path):
     subdirs_string = f', including {dir_count} sub-directories,'
     count_string = f'\n{file_count} files{subdirs_string if dir_count else ""} will be affected...\n'
 
-    if (file_count):
+    if file_count:
         print(count_string)
     else:
-        return print('\nOperation aborted: No files found.')
+        print('\nOperation aborted: No files found.')
+        sys.exit()
 
     confirm_string = 'Are you sure you wish to proceed with rename operation? (y/n): '
     confirm_rename = input(confirm_string)
@@ -57,7 +59,7 @@ def set_confirmation(target_path):
     return confirm_rename.lower() == 'y' or confirm_rename.lower() == 'yes'
 
 
-def perform_rename(file, root, lowercase, uppercase):
+def perform_rename(root, file, lowercase, uppercase):
     # save original filename
     original_filename = file
 
@@ -69,10 +71,10 @@ def perform_rename(file, root, lowercase, uppercase):
         if substring in file:
             file = file.replace(substring, replacement)
 
-            if (lowercase):
+            if lowercase:
                 file = file.lower()
 
-            if (uppercase):
+            if uppercase:
                 file = file.upper()
 
     # set new file path
@@ -85,40 +87,38 @@ def perform_rename(file, root, lowercase, uppercase):
         # rename file
         os.rename(original_path, new_path)
 
-        output_string = f"'{original_filename}' --> '{file}'"
-        print(output_string)
-
+        output_string = f"'{original_filename}' >>> '{file}'"
         renamed_files.append(output_string)
 
 
 def rename_files(target_path, lowercase=False, uppercase=False):
     # raise an error if user passed True for lowercase AND uppercase arguments
-    if (lowercase is True and uppercase is True):
+    if lowercase is True and uppercase is True:
         error_string = "Lowercase OR uppercase argument can be True, but not both."
         raise ValueError(error_string)
 
     is_confirmed = set_confirmation(target_path)
 
-    if (is_confirmed):
+    if is_confirmed:
         for root, _, files in os.walk(target_path):
             for file in files:
-                perform_rename(file, root, lowercase, uppercase)
+                # append root/new path before renamed file
+                path_string = f'\n{root}\n'
+                if path_string not in renamed_files:
+                    renamed_files.append(path_string)
+
+                perform_rename(root, file, lowercase, uppercase)
 
         completed_string = f'\nOperation completed: {renamed_count if renamed_count else "No"} total files were renamed.'
         print(completed_string)
 
         current_time = datetime.now()
 
-        log_header = f'''Rename operation completed at {current_time}
-        {renamed_count} total files were renamed.
-            
-        Files renamed:
-        --------------
-        '''
-
         # log results
         with open(f'{current_time}.txt', 'a') as log:
-            log.write(log_header)
+            log.write(f'Rename operation completed at: {current_time}\n')
+            log.write(f'\n{renamed_count} total files renamed\n')
+            log.write('-----------------------\n')
             log.write('\n'.join(renamed_files))
     else:
         print('\nOperation aborted: Failed to confirm.')
