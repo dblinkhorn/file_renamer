@@ -113,11 +113,13 @@ def rename_files(target_path, lowercase=False, uppercase=False):
 
         current_time = datetime.now()
 
+        log_header = (f'Rename operation completed at: {current_time}\n'
+                      f'\n{renamed_count} total files renamed\n'
+                      '-----------------------\n')
+
         # log results
         with open(f'{current_time}.txt', 'a') as log:
-            log.write(f'Rename operation completed at: {current_time}\n')
-            log.write(f'\n{renamed_count} total files renamed\n')
-            log.write('-----------------------\n')
+            log.write(log_header)
             log.write('\n'.join(renamed_files))
     else:
         print('\nOperation aborted: Failed to confirm.')
