@@ -90,6 +90,17 @@ def perform_rename(root, file, lowercase, uppercase):
         renamed_files.append(output_string)
 
 
+def create_text_log(current_time):
+    log_header = (f'Rename operation completed at: {current_time}\n'
+                  f'\n{renamed_count} total files renamed\n'
+                  '-----------------------\n')
+
+    # log results
+    with open(f'{current_time}.txt', 'a') as log:
+        log.write(log_header)
+        log.write('\n'.join(renamed_files))
+
+
 def rename_files(target_path, lowercase=False, uppercase=False):
     # raise an error if user passed True for lowercase AND uppercase arguments
     if lowercase is True and uppercase is True:
@@ -111,16 +122,8 @@ def rename_files(target_path, lowercase=False, uppercase=False):
         completed_string = f'\nOperation completed: {renamed_count if renamed_count else "No"} total files were renamed.'
         print(completed_string)
 
-        current_time = datetime.now()
+        create_text_log(datetime.now())
 
-        log_header = (f'Rename operation completed at: {current_time}\n'
-                      f'\n{renamed_count} total files renamed\n'
-                      '-----------------------\n')
-
-        # log results
-        with open(f'{current_time}.txt', 'a') as log:
-            log.write(log_header)
-            log.write('\n'.join(renamed_files))
     else:
         print('\nOperation aborted: Failed to confirm.')
 

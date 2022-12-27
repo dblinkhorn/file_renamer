@@ -7,7 +7,7 @@
         " ": "_"
     },
     "target_path": "/home/example-user/example-folder",
-    "data": {
+    "data": [{
         "directory": "/home/example-user/example-folder",
         "files": [
             {
@@ -42,5 +42,5 @@
                 ]
             }
         ]
-    }
+    }]
 }
