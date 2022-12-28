@@ -7,40 +7,42 @@
         " ": "_"
     },
     "target_path": "/home/example-user/example-folder",
-    "data": [{
-        "directory": "/home/example-user/example-folder",
-        "files": [
-            {
-                "original_name": "file 1.txt",
-                "new_name": "file_1.txt"
-            },
-            {
-                "original_name": "file 2.txt",
-                "new_name": "file_2.txt"
-            },
-            {
-                "original_name": "file 3.txt",
-                "new_name": "file_3.txt"
-            }
-        ],
-        "children": [
-            {
-                "directory": "/home/example-user/example-folder/sub-folder",
-                "files": [
-                    {
-                        "original_name": "file 1.txt",
-                        "new_name": "file_1.txt"
-                    },
-                    {
-                        "original_name": "file 2.txt",
-                        "new_name": "file_2.txt"
-                    },
-                    {
-                        "original_name": "file 3.txt",
-                        "new_name": "file_3.txt"
-                    }
-                ]
-            }
-        ]
-    }]
+    "data": [
+        {
+            "directory": "/home/example-user/example-folder",
+            "files": [
+                {
+                    "original_name": "file 1.txt",
+                    "new_name": "file_1.txt"
+                },
+                {
+                    "original_name": "file 2.txt",
+                    "new_name": "file_2.txt"
+                },
+                {
+                    "original_name": "file 3.txt",
+                    "new_name": "file_3.txt"
+                }
+            ],
+            "children": [
+                {
+                    "directory": "/home/example-user/example-folder/sub-folder",
+                    "files": [
+                        {
+                            "original_name": "file 1.txt",
+                            "new_name": "file_1.txt"
+                        },
+                        {
+                            "original_name": "file 2.txt",
+                            "new_name": "file_2.txt"
+                        },
+                        {
+                            "original_name": "file 3.txt",
+                            "new_name": "file_3.txt"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }
