@@ -2,13 +2,15 @@
 
 import os
 import sys
+import json
 from datetime import datetime
 
 
 # [ USER OPTIONS ] ************************************************************
 
 # specify path to root folder
-target_path = '/home/example-user/example-folder'
+# target_path = '/home/example-user/example-folder'
+target_path = '/home/dblinkhorn/Downloads/test2'
 
 # specify substring replacements
 replacements = {
@@ -24,9 +26,6 @@ uppercase = False
 
 # *****************************************************************************
 
-renamed_count = 0
-renamed_files = []
-
 
 def get_counts(target_path):
     file_count = 0
@@ -39,9 +38,10 @@ def get_counts(target_path):
     return [file_count, dir_count]
 
 
-def set_confirmation(target_path):
-    file_count, dir_count = get_counts(target_path)
+file_count, dir_count = get_counts(target_path)
 
+
+def set_confirmation(target_path, file_count, dir_count):
     print(f'\nSelected root folder: {target_path}')
     subdirs_string = f', including {dir_count} sub-directories,'
     count_string = f'\n{file_count} files{subdirs_string if dir_count else ""} will be affected...\n'
@@ -58,75 +58,95 @@ def set_confirmation(target_path):
     return confirm_rename.lower() == 'y' or confirm_rename.lower() == 'yes'
 
 
-def perform_rename(root, file, lowercase, uppercase):
-    # save original filename
-    original_filename = file
-
-    # set original file path
-    original_path = os.path.join(root, file)
-
-    # replace substrings
-    for substring, replacement in replacements.items():
-        if substring in file:
-            file = file.replace(substring, replacement)
-
-            if lowercase:
-                file = file.lower()
-
-            if uppercase:
-                file = file.upper()
-
-    # set new file path
-    new_path = os.path.join(root, file)
-
-    if original_path != new_path:
-        global renamed_count
-        renamed_count += 1
-
-        # rename file
-        os.rename(original_path, new_path)
-
-        output_string = f"'{original_filename}' >>> '{file}'"
-        renamed_files.append(output_string)
-
-
-def create_text_log(current_time):
-    log_header = (f'Rename operation completed at: {current_time}\n'
-                  f'\n{renamed_count} total files renamed\n'
-                  '-----------------------\n')
-
-    # log results
-    with open(f'{current_time}.txt', 'a') as log:
-        log.write(log_header)
-        log.write('\n'.join(renamed_files))
-
-
-def rename_files(target_path, lowercase=False, uppercase=False):
+def perform_rename(path, rules, lowercase=False, uppercase=False, json_log=None):
     # raise an error if user passed True for lowercase AND uppercase arguments
     if lowercase is True and uppercase is True:
         error_string = "Lowercase OR uppercase argument can be True, but not both."
         raise ValueError(error_string)
 
-    is_confirmed = set_confirmation(target_path)
+    # if 'json_log' argument is not passed, current path is 'target_path'
+    is_target_path = json_log is None
+    # set up JSON log dictionary if it's the first execution of rename()
+    if is_target_path:
+        json_log = {
+            'timestamp': datetime.now(),
+            'directories_inspected': 0,
+            'files_inspected': 0,
+            'files_renamed': 0,
+            'replacement_rules': rules,
+            'target_path': path,
+        }
+    files = []
+    children = []
+
+    with os.scandir(path) as iterator:
+        for item in iterator:
+            # add any sub-directories to 'children' of current directory
+            if item.is_dir():
+                children.append(
+                    perform_rename(
+                        item.path,
+                        rules,
+                        lowercase,
+                        uppercase,
+                        json_log
+                    )
+                )
+            # if 'item' is a file
+            else:
+                json_log['files_inspected'] += 1
+                for substring, replacement in rules.items():
+                    if substring in item.name:
+                        new_name = item.name.replace(substring, replacement)
+                        new_path = os.path.join(path, new_name)
+                        os.rename(item.path, new_path)
+                        json_log['files_renamed'] += 1
+                        files.append({
+                            'original_name': item.name,
+                            'new_name': new_name,
+                        })
+                        break
+
+    json_log['directories_inspected'] += 1
+
+    # create directory object
+    directory = {'directory': path}
+
+    # add 'files' and 'children' to directory
+    if files:
+        directory.update({'files': files})
+    if children:
+        directory.update({'children': children})
+    if is_target_path:
+        # combine 'json_log' and 'directory' dictionaries
+        directory = json_log | directory
+
+    return directory
+
+
+def run_renamer(target_path):
+    is_confirmed = set_confirmation(target_path, file_count, dir_count)
 
     if is_confirmed:
-        for root, _, files in os.walk(target_path):
-            for file in files:
-                # append root/new path before renamed file
-                path_string = f'\n{root}\n'
-                if path_string not in renamed_files:
-                    renamed_files.append(path_string)
 
-                perform_rename(root, file, lowercase, uppercase)
+        result = perform_rename(
+            target_path, replacements, lowercase, uppercase
+        )
 
-        completed_string = f'\nOperation completed: {renamed_count if renamed_count else "No"} total files were renamed.'
+        timestamp = result['timestamp']
+
+        # create log file
+        with open(f'renamer_log--{timestamp}.json', 'a') as log:
+            log.write(json.dumps(result, indent=4, default=str))
+
+        files_renamed = result['files_renamed'] or "No"
+
+        completed_string = (f'\nOperation completed: '
+                            f'{files_renamed} total files were renamed.')
         print(completed_string)
-
-        create_text_log(datetime.now())
 
     else:
         print('\nOperation aborted: Failed to confirm.')
 
 
-get_counts(target_path)
-rename_files(target_path, lowercase, uppercase)
+run_renamer(target_path)
