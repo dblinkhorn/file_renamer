@@ -9,8 +9,7 @@ from datetime import datetime
 # [ USER OPTIONS ] ************************************************************
 
 # specify path to root folder
-# target_path = '/home/example-user/example-folder'
-target_path = '/home/dblinkhorn/Downloads/test2'
+target_path = '/home/example-user/example-folder'
 
 # specify substring replacements
 replacements = {
@@ -61,7 +60,8 @@ def set_confirmation(target_path, file_count, dir_count):
 
 def perform_rename(path, replacements, lowercase=False,
                    uppercase=False, base_log=None):
-    # raise an error if user passed True for 'lowercase' AND 'uppercase' arguments
+    # raise an error if user passed True for
+    # 'lowercase' AND 'uppercase' arguments
     if lowercase is True and uppercase is True:
         error_string = ('Lowercase OR uppercase argument can be True, '
                         'but not both.')
