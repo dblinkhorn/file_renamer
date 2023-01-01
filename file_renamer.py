@@ -9,7 +9,8 @@ from datetime import datetime
 # [ USER OPTIONS ] ************************************************************
 
 # specify path to root folder
-target_path = '/home/example-user/example-folder'
+# target_path = '/home/example-user/example-folder'
+target_path = '/home/dblinkhorn/Downloads/test2'
 
 # specify substring replacements
 replacements = {
@@ -30,6 +31,9 @@ def get_counts(target_path):
     file_count = 0
     dir_count = 0  # count does not include 'target_path' directory
     for _, dirs, files in os.walk(target_path):
+        # remove hidden files and directories
+        files = [file for file in files if not file[0] == '.']
+        dirs[:] = [dir for dir in dirs if not dir[0] == '.']
         file_count += len(files)
         dir_count += len(dirs)
     return [file_count, dir_count]
@@ -39,7 +43,7 @@ file_count, dir_count = get_counts(target_path)
 
 
 def set_confirmation(target_path, file_count, dir_count):
-    print(f'\nSelected root folder: {target_path}')
+    print(f'\nSelected target directory: {target_path}')
     subdirs_string = f', including {dir_count} sub-directories,'
     count_string = (f'\n{file_count} files'
                     f'{subdirs_string if dir_count else ""} '
@@ -55,28 +59,23 @@ def set_confirmation(target_path, file_count, dir_count):
     return confirm_input.lower() == 'y' or confirm_input.lower() == 'yes'
 
 
-def perform_rename(
-    path,
-    rules,
-    lowercase=False,
-    uppercase=False,
-    json_log=None
-):
-    # raise an error if user passed True for lowercase AND uppercase arguments
+def perform_rename(path, replacements, lowercase=False,
+                   uppercase=False, base_log=None):
+    # raise an error if user passed True for 'lowercase' AND 'uppercase' arguments
     if lowercase is True and uppercase is True:
         error_string = ('Lowercase OR uppercase argument can be True, '
                         'but not both.')
         raise ValueError(error_string)
-    # if 'json_log' argument is not passed, current path is 'target_path'
-    is_target_path = json_log is None
-    # set up JSON log dictionary if it's the first execution of rename()
+    # if 'base_log' argument is not passed, current path is 'target_path'
+    # this means it's the first execution of perform_rename()
+    is_target_path = base_log is None
     if is_target_path:
-        json_log = {
+        base_log = {
             'timestamp': datetime.now(),
             'directories_inspected': 0,
             'files_inspected': 0,
             'files_renamed': 0,
-            'replacement_rules': rules,
+            'replacement_rules': replacements,
             'target_path': path,
         }
     files = []
@@ -86,51 +85,43 @@ def perform_rename(
             # add any sub-directories to 'children' of current directory
             if item.is_dir():
                 children.append(
-                    perform_rename(
-                        item.path,
-                        rules,
-                        lowercase,
-                        uppercase,
-                        json_log
-                    )
+                    perform_rename(item.path, replacements, lowercase,
+                                   uppercase, base_log)
                 )
             # if 'item' is a file
             else:
-                json_log['files_inspected'] += 1
-                for substring, replacement in rules.items():
+                base_log['files_inspected'] += 1
+                for substring, replacement in replacements.items():
                     if substring in item.name:
                         new_name = item.name.replace(substring, replacement)
                         new_path = os.path.join(path, new_name)
                         os.rename(item.path, new_path)
-                        json_log['files_renamed'] += 1
+                        base_log['files_renamed'] += 1
                         files.append({
                             'original_name': item.name,
                             'new_name': new_name,
                         })
                         break
-    json_log['directories_inspected'] += 1
+    base_log['directories_inspected'] += 1
     # create directory object
     directory = {'directory': path}
-    # add 'files' and 'children' to directory
+    # add 'files' and 'children' to 'directory' object
     if files:
         directory.update({'files': files})
     if children:
         directory.update({'children': children})
     if is_target_path:
-        # combine 'json_log' and 'directory' dictionaries
-        directory = json_log | directory
-    return directory
+        rename_data = {'rename_data': [directory]}
+        # construct final log object
+        result = base_log | rename_data
+    return result
 
 
 def run_renamer(target_path):
     is_confirmed = set_confirmation(target_path, file_count, dir_count)
     if is_confirmed:
-        result = perform_rename(
-            target_path,
-            replacements,
-            lowercase,
-            uppercase
-        )
+        result = perform_rename(target_path, replacements,
+                                lowercase, uppercase)
         timestamp = result['timestamp']
         # create log file
         with open(f'renamer_log--{timestamp}.json', 'a') as log:
