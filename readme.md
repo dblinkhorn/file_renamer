@@ -1,8 +1,8 @@
-Batch Renamer
+File Renamer
 
 This script inspects a target directory and will evaluate all files in the directory, and in all
 sub-directories, and rename any file whose name matches user-specified rename rules. Before
-running this script, you will need to specify the following values within 'batch_renamer.py':
+running this script, you will need to specify the following values within 'file_renamer.py':
 
 1.  target_path -- This is the root folder the script will inspect.
 
