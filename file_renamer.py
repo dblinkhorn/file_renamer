@@ -6,24 +6,27 @@ import json
 from datetime import datetime
 
 
-# [ USER OPTIONS ] ************************************************************
+# [ USER OPTIONS ] ***********************************************************
 
 # specify path to root folder
-target_path = '/home/example-user/example-folder'
+# target_path = '/home/example-user/example-folder'
+target_path = '/home/dblinkhorn/example'
 
-# specify substring replacements
+# specify substring/regex replacements
 replacements = {
     # target: replacement
-    '%20': '_',
-    ' ': '_',
+    # '%20': '_',
+    # ' ': '_',
+    'asdf': 'asda'
 }
 
-# change either values below to True to force desired case, but not both
-# only affects files that include a defined substring in 'replacements'
+# change either values below to 'True' (but not both) to force desired case
+# only affects files whose name includes a defined substring/regex
+# in 'replacements'
 lowercase = False
 uppercase = False
 
-# *****************************************************************************
+# ****************************************************************************
 
 
 def get_counts(target_path):
@@ -63,11 +66,11 @@ def perform_rename(path, replacements, lowercase=False,
     # raise an error if user passed True for
     # 'lowercase' AND 'uppercase' arguments
     if lowercase is True and uppercase is True:
-        error_string = ('Lowercase OR uppercase argument can be True, '
+        error_string = ("'lowercase' OR 'uppercase' argument can be True, "
                         'but not both.')
         raise ValueError(error_string)
     # if 'base_log' argument is not passed, current path is 'target_path'
-    # this means it's the first execution of perform_rename()
+    # this means it's the first execution of 'perform_rename()'
     is_target_path = base_log is None
     if is_target_path:
         base_log = {
@@ -131,9 +134,10 @@ def run_renamer(target_path):
         # create log file
         with open(f'renamer_log--{timestamp}.json', 'a') as log:
             log.write(json.dumps(result, indent=4, default=str))
-        files_renamed = result['files_renamed'] or "No"
+        files_renamed = (result['files_renamed']
+                         if result['files_renamed'] > 0 else "No")
         completed_string = (f'\nOperation completed: '
-                            f'{files_renamed} total files were renamed.')
+                            f'{files_renamed} files were renamed.')
         print(completed_string)
     else:
         print('\nOperation aborted: Failed to confirm.')
