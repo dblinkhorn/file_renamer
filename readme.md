@@ -18,11 +18,11 @@ running this script, you will need to specify the following values within 'file_
     string replaced with "hello". If you have a file whose name is "aloha_world.txt" then the new
     file name would be "hello_world.txt".
 
-3.  lowercase -- If this is set to 'True', then an inspected file's new name will be forced to
-    lowercase. Only files whose names would also cause them to be renamed by one of the
-    'replacements' rules will be affected.
+3.  lowercase -- Default value is 'False'. If this is set to 'True', then an inspected file's new
+    name will be forced to lowercase. Only files whose names would also cause them to be renamed by
+    one of the 'replacements' rules will be affected.
 
-4.  uppercase -- Same as above except as uppercase. If you set 'lowercase' and 'uppercase' to
+4.  uppercase -- Same as above except as uppercase. If you set both 'lowercase' and 'uppercase' to
     'True' it will throw a ValueError.
 
 When the script is run you will be shown the total number of files and directories to be inspected,

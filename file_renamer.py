@@ -13,10 +13,10 @@ target_path = '/home/example-user/example-folder'
 
 # specify substring/regex replacements
 replacements = {
+    # these are just examples
     # target: replacement
-    # '%20': '_',
-    # ' ': '_',
-    'asdf': 'asda'
+    '%20': '_',
+    ' ': '_',
 }
 
 # change either values below to 'True' (but not both) to force desired case
