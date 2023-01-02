@@ -82,28 +82,33 @@ def perform_rename(path, replacements, lowercase=False,
     children = []
     with os.scandir(path) as iterator:
         for item in iterator:
-            # add any sub-directories to 'children' of current directory
-            if item.is_dir():
-                children.append(
-                    perform_rename(item.path, replacements, lowercase,
-                                   uppercase, base_log)
-                )
-            # if 'item' is a file
+            # exclude hidden files and directories
+            if not item.name.startswith('.'):
+                # add any sub-directories to 'children' of current directory
+                if item.is_dir():
+                    children.append(
+                        perform_rename(item.path, replacements, lowercase,
+                                       uppercase, base_log)
+                    )
+                # if 'item' is a file
+                else:
+                    base_log['files_inspected'] += 1
+                    for substring, replacement in replacements.items():
+                        if substring in item.name:
+                            new_name = item.name.replace(
+                                substring, replacement)
+                            new_path = os.path.join(path, new_name)
+                            os.rename(item.path, new_path)
+                            base_log['files_renamed'] += 1
+                            files.append({
+                                'original_name': item.name,
+                                'new_name': new_name,
+                            })
+                            break
             else:
-                base_log['files_inspected'] += 1
-                for substring, replacement in replacements.items():
-                    if substring in item.name:
-                        new_name = item.name.replace(substring, replacement)
-                        new_path = os.path.join(path, new_name)
-                        os.rename(item.path, new_path)
-                        base_log['files_renamed'] += 1
-                        files.append({
-                            'original_name': item.name,
-                            'new_name': new_name,
-                        })
-                        break
+                continue
     base_log['directories_inspected'] += 1
-    # create directory object
+    # start building 'directory' object
     directory = {'directory': path}
     # add 'files' and 'children' to 'directory' object
     if files:
@@ -112,9 +117,9 @@ def perform_rename(path, replacements, lowercase=False,
         directory.update({'children': children})
     if is_target_path:
         rename_data = {'rename_data': [directory]}
-        # construct final log object
-        result = base_log | rename_data
-    return result
+        # add 'base_log' keys/values to 'rename_data'
+        directory = base_log | rename_data
+    return directory
 
 
 def run_renamer(target_path):
