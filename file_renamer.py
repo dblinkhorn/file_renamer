@@ -14,7 +14,7 @@ target_path = '/home/example-user/example-folder'
 # specify substring/regex replacements
 replacements = {
     # these are just examples
-    # target: replacement
+    # 'target': 'replacement'
     '%20': '_',
     ' ': '_',
 }
@@ -90,8 +90,7 @@ def perform_rename(path, replacements, lowercase=False,
                 if item.is_dir():
                     children.append(
                         perform_rename(item.path, replacements, lowercase,
-                                       uppercase, base_log)
-                    )
+                                       uppercase, base_log))
                 # if 'item' is a file
                 else:
                     base_log['files_inspected'] += 1
@@ -140,6 +139,3 @@ def run_renamer(target_path):
         print(completed_string)
     else:
         print('\nOperation aborted: Failed to confirm.')
-
-
-run_renamer(target_path)
