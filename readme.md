@@ -8,7 +8,7 @@ running this script, you will need to specify the following values within 'file_
 
 2.  replacements -- The keys of this dictionary will be substrings or regex patterns that you want
     to be replaced in an inspected file's name. The values of the dictionary will the values you
-    want to replace the substring or regex pattern (key) with. For example, if you specify this...
+    want to replace the substring or regex pattern (key) with. For example, if you specify this:
 
         replacements = {
             "aloha": "hello"

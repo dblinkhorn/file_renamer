@@ -9,15 +9,10 @@ from datetime import datetime
 # [ USER OPTIONS ] ***********************************************************
 
 # specify path to root folder
-target_path = '/home/example-user/example-folder'
+target_path = "."
 
 # specify substring/regex replacements
-replacements = {
-    # these are just examples
-    # 'target': 'replacement'
-    '%20': '_',
-    ' ': '_',
-}
+replacements = {}
 
 # change either values below to 'True' (but not both) to force desired case
 # only affects files whose name includes a defined substring/regex
