@@ -6,18 +6,17 @@ import file_renamer as fr
 
 def select_folder():
     global target_path
-    path_select = filedialog.askdirectory()
-    target_path.set(path_select)
+    target_path = filedialog.askdirectory()
     target_path_text.delete(1.0, END)
-    target_path_text.insert(1.0, path_select)
+    target_path_text.insert(1.0, target_path)
 
 
 def add_replacement_key():
     replacement_keys.append(StringVar())
-    key_entry = ttk.Entry(
+    # entry value will be bound to the StringVar appended above
+    ttk.Entry(
         replacement_frame, textvariable=replacement_keys[-1], width=15).grid(
         column=0, row=len(replacement_keys)+1, pady=4)
-    replacement_keys_entries.append(key_entry)
 
 
 def add_replacement_value():
@@ -26,6 +25,13 @@ def add_replacement_value():
         replacement_frame,
         textvariable=replacement_values[-1], width=15).grid(
             column=1, row=len(replacement_values)+1, pady=4, padx=12)
+
+
+def set_case():
+    if case_value.get() == 'lowercase':
+        fr.lowercase = True
+    if case_value.get() == 'uppercase':
+        fr.uppercase = True
 
 
 def set_replacements():
@@ -37,16 +43,15 @@ def set_replacements():
 
 
 def apply_rename():
+    set_case()
     set_replacements()
-    fr.run_renamer(target_path.get())
+    fr.run_renamer(target_path)
 
 
 # these hold the StringVars that will comprise the key/value pairs for
 # 'replacements' dictionary in 'file_renamer.py'
 replacement_keys = []
 replacement_values = []
-replacement_keys_entries = []
-replacement_values_entries = []
 
 
 root = Tk()

@@ -5,22 +5,10 @@ import sys
 import json
 from datetime import datetime
 
+target_path = ''
 
-# [ USER OPTIONS ] ***********************************************************
-
-# specify path to root folder
-target_path = "."
-
-# specify substring/regex replacements
+# substring/regex replacements rules will be built here
 replacements = {}
-
-# change either values below to 'True' (but not both) to force desired case
-# only affects files whose name includes a defined substring/regex
-# in 'replacements'
-lowercase = False
-uppercase = False
-
-# ****************************************************************************
 
 
 def get_counts(target_path):
@@ -33,9 +21,6 @@ def get_counts(target_path):
         file_count += len(files)
         dir_count += len(dirs)
     return [file_count, dir_count]
-
-
-file_count, dir_count = get_counts(target_path)
 
 
 def set_confirmation(target_path, file_count, dir_count):
@@ -93,6 +78,10 @@ def perform_rename(path, replacements, lowercase=False,
                         if substring in item.name:
                             new_name = item.name.replace(
                                 substring, replacement)
+                            if lowercase:
+                                new_name = new_name.lower()
+                            if uppercase:
+                                new_name = new_name.upper()
                             new_path = os.path.join(path, new_name)
                             os.rename(item.path, new_path)
                             base_log['files_renamed'] += 1
@@ -118,7 +107,12 @@ def perform_rename(path, replacements, lowercase=False,
     return directory
 
 
+lowercase = False
+uppercase = False
+
+
 def run_renamer(target_path):
+    file_count, dir_count = get_counts(target_path)
     is_confirmed = set_confirmation(target_path, file_count, dir_count)
     if is_confirmed:
         result = perform_rename(target_path, replacements,
