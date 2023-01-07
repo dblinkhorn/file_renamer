@@ -145,20 +145,20 @@ lowercase_check = Radiobutton(
     mainframe, text=" Lowercase", variable=case_value,
     value="lowercase").grid(column=0, row=3, sticky=W)
 lowercase_label = ttk.Label(mainframe, text="2. Force case (optional):").grid(
-    sticky=W, column=0, row=2, pady=(12, 0))
+    sticky=W, column=0, row=2, pady=(18, 0))
 uppercase_check = Radiobutton(
     mainframe, text=" Uppercase", variable=case_value,
     value="uppercase").grid(column=0, row=4, sticky=W)
 
 # replacement frame
-replacement_frame = ttk.Frame(mainframe, padding=("10 0"))
+replacement_frame = ttk.Frame(mainframe, padding=("10 10 0 0"))
 replacement_frame.grid(sticky=W, column=0, row=6, pady=(12, 0))
 
 # replacement rules
 replacement_key_text = Text(mainframe, height=1, width=30)
 replacement_label = ttk.Label(
     mainframe, text="3. Add replacement rules:").grid(
-        sticky=W, column=0, row=5, pady=12)
+        sticky=W, column=0, row=5, pady=(18, 0))
 replacement_key_label = ttk.Label(replacement_frame, text="Target:").grid(
     sticky=W, column=0, row=0)
 replacement_value_label = ttk.Label(
@@ -168,7 +168,7 @@ replacement_value_label = ttk.Label(
 replacement_add_btn = ttk.Button(
     mainframe, text="Add",
     command=lambda: [add_replacement_key(), add_replacement_value()]).grid(
-        column=0, row=5, padx=(24, 0))
+        column=0, row=5, padx=(24, 0), pady=(12, 0))
 
 # apply rename
 apply_rename_btn = ttk.Button(
