@@ -50,11 +50,11 @@ def apply_rename():
 
 
 def invalid_replacements():
-    valid = True
+    invalid = False
     for key, value in zip(replacement_keys, replacement_values):
-        if not key or not value:
-            valid = False
-    return valid
+        if not key.get() or not value.get():
+            invalid = True
+    return invalid
 
 
 def confirm_rename():
@@ -72,7 +72,6 @@ def confirm_rename():
             modal_frame, text="Okay", command=modal_root.destroy).grid(
                 sticky=E, column=0, row=2, pady=(12, 0))
         return
-    print(invalid_replacements())
     if invalid_replacements():
         invalid_replacements_msg = (
             "Every 'Target' and 'Replacement' must have a value.")
