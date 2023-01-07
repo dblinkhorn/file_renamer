@@ -23,23 +23,6 @@ def get_counts(target_path):
     return [file_count, dir_count]
 
 
-def set_confirmation(target_path, file_count, dir_count):
-    print(f'\nSelected target directory: {target_path}')
-    subdirs_string = f', including {dir_count} sub-directories,'
-    count_string = (f'\n{file_count} files'
-                    f'{subdirs_string if dir_count else ""} '
-                    'will be affected...\n')
-    if file_count:
-        print(count_string)
-    else:
-        print('\nOperation aborted: No files found.')
-        sys.exit()
-    confirm_string = ('Are you sure you wish to proceed '
-                      'with rename operation? (y/n): ')
-    confirm_input = input(confirm_string)
-    return confirm_input.lower() == 'y' or confirm_input.lower() == 'yes'
-
-
 def perform_rename(path, replacements, lowercase=False,
                    uppercase=False, base_log=None):
     # raise an error if user passed True for
@@ -112,19 +95,14 @@ uppercase = False
 
 
 def run_renamer(target_path):
-    file_count, dir_count = get_counts(target_path)
-    is_confirmed = set_confirmation(target_path, file_count, dir_count)
-    if is_confirmed:
-        result = perform_rename(target_path, replacements,
-                                lowercase, uppercase)
-        timestamp = result['timestamp']
-        # create log file
-        with open(f'renamer_log--{timestamp}.json', 'a') as log:
-            log.write(json.dumps(result, indent=4, default=str))
-        files_renamed = (result['files_renamed']
-                         if result['files_renamed'] > 0 else "No")
-        completed_string = (f'\nOperation completed: '
-                            f'{files_renamed} files were renamed.')
-        print(completed_string)
-    else:
-        print('\nOperation aborted: Failed to confirm.')
+    result = perform_rename(target_path, replacements,
+                            lowercase, uppercase)
+    timestamp = result['timestamp']
+    # create log file
+    with open(f'renamer_log--{timestamp}.json', 'a') as log:
+        log.write(json.dumps(result, indent=4, default=str))
+    files_renamed = (result['files_renamed']
+                     if result['files_renamed'] > 0 else "No")
+    result_msg = (f'\nOperation completed: '
+                  f'{files_renamed} files were renamed.')
+    return result_msg

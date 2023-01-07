@@ -6,9 +6,10 @@ import file_renamer as fr
 
 def select_folder():
     global target_path
-    target_path = filedialog.askdirectory()
+    selected_path = filedialog.askdirectory()
+    target_path.set(selected_path)
     target_path_text.delete(1.0, END)
-    target_path_text.insert(1.0, target_path)
+    target_path_text.insert(1.0, selected_path)
 
 
 def add_replacement_key():
@@ -48,11 +49,59 @@ def apply_rename():
     fr.run_renamer(target_path)
 
 
+def confirm_rename():
+    modal_root = Tk()
+    modal_root.attributes('-topmost', True)
+    modal_root.title("Confirm Rename")
+    modal_frame = ttk.Frame(
+        modal_root, padding="12 12 12 12")
+    modal_frame.grid(column=0, row=0)
+    if not target_path.get():
+        empty_path_msg = "You must specify a valid target directory. Please try again."
+        ttk.Label(modal_frame, text=empty_path_msg).grid(column=0, row=1)
+        ttk.Button(
+            modal_frame, text="Okay", command=modal_root.destroy).grid(
+                sticky=E, column=0, row=2, pady=(12, 0))
+        return
+    # get total files & dirs that will be inspected
+    file_count, dir_count = fr.get_counts(target_path.get())
+    no_files_msg = '\nNo files found. Please select another directory.'
+    if file_count > 0:
+        singular_subdir_string = 'sub-directory'
+        plural_subdir_string = 'sub-directories'
+        # determine singular or plural
+        subdir_string = (singular_subdir_string if dir_count == 1
+                         else plural_subdir_string)
+        subdirs_string = f', including {dir_count} {subdir_string},'
+        count_string = (f'\n{file_count} files'
+                        f'{subdirs_string if dir_count else ""} '
+                        'will be affected.\n')
+        files_msg = count_string if file_count else no_files_msg
+        # this will be rendered on the confirm modal
+        confirm_message = (f'\nSelected target directory: {target_path.get()}'
+                           f'\n{files_msg}'
+                           '\nAre you sure you wish to proceed '
+                           'with this rename operation?')
+        ttk.Label(modal_frame, text=confirm_message).grid(
+            column=0, row=1, pady=(0, 12))
+        ttk.Button(
+            modal_frame, text="Confirm",
+            command=lambda: [apply_rename(), modal_root.destroy()]).grid(
+                sticky=E, column=0, row=2)
+        ttk.Button(
+            modal_frame, text="Cancel", command=modal_root.destroy).grid(
+                sticky=E, column=1, row=2, padx=(12, 0))
+    else:
+        ttk.Label(modal_frame, text=no_files_msg).grid(column=0, row=1)
+        ttk.Button(
+            modal_frame, text="Okay", command=modal_root.destroy).grid(
+                sticky=E, column=0, row=2, pady=(12, 0))
+
+
 # these hold the StringVars that will comprise the key/value pairs for
 # 'replacements' dictionary in 'file_renamer.py'
 replacement_keys = []
 replacement_values = []
-
 
 root = Tk()
 root.title("File Renamer")
@@ -105,7 +154,7 @@ replacement_add_btn = ttk.Button(
 
 # apply rename
 apply_rename_btn = ttk.Button(
-    mainframe, text="Apply", command=apply_rename).grid(
+    mainframe, text="Apply", command=confirm_rename).grid(
         sticky=SE, column=1, row=6)
 
 add_replacement_key()
