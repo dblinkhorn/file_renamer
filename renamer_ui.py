@@ -49,6 +49,14 @@ def apply_rename():
     fr.run_renamer(target_path)
 
 
+def invalid_replacements():
+    valid = True
+    for key, value in zip(replacement_keys, replacement_values):
+        if not key or not value:
+            valid = False
+    return valid
+
+
 def confirm_rename():
     modal_root = Tk()
     modal_root.attributes('-topmost', True)
@@ -57,8 +65,19 @@ def confirm_rename():
         modal_root, padding="12 12 12 12")
     modal_frame.grid(column=0, row=0)
     if not target_path.get():
-        empty_path_msg = "You must specify a valid target directory. Please try again."
+        empty_path_msg = (
+            "You must specify a valid target directory. Please try again.")
         ttk.Label(modal_frame, text=empty_path_msg).grid(column=0, row=1)
+        ttk.Button(
+            modal_frame, text="Okay", command=modal_root.destroy).grid(
+                sticky=E, column=0, row=2, pady=(12, 0))
+        return
+    print(invalid_replacements())
+    if invalid_replacements():
+        invalid_replacements_msg = (
+            "Every 'Target' and 'Replacement' must have a value.")
+        ttk.Label(modal_frame, text=invalid_replacements_msg).grid(
+            column=0, row=1)
         ttk.Button(
             modal_frame, text="Okay", command=modal_root.destroy).grid(
                 sticky=E, column=0, row=2, pady=(12, 0))
