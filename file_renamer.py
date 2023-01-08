@@ -19,8 +19,11 @@ def get_counts(target_path):
     return [file_count, dir_count]
 
 
+is_script = __name__ == '__main__'
+
+
 # only run parser logic if file is run as a script
-if __name__ == '__main__':
+if is_script:
     # define the parser
     parser = argparse.ArgumentParser(description='Parse arguments from CLI.')
 
@@ -168,7 +171,7 @@ def run_renamer(target_path):
         result_msg = (f'\nOperation completed: '
                       f'{files_renamed} files were renamed.')
         return result_msg
-    if __name__ == '__main__':
+    if is_script:
         is_confirmed = set_confirmation(target_path, file_count, dir_count)
         if is_confirmed:
             result_msg = rename()
@@ -179,5 +182,5 @@ def run_renamer(target_path):
         return rename()
 
 
-if __name__ == '__main__':
+if is_script:
     run_renamer(target_path)
