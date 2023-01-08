@@ -4,12 +4,30 @@ import os
 import sys
 import json
 from datetime import datetime
+import argparse
 
-target_path = ''
+# Define the parser
+parser = argparse.ArgumentParser(description='parse arguments from cli')
 
-# substring/regex replacements rules will be built here
-replacements = {}
+parser.add_argument('--target-path', action="store", dest='target_path', default="null")
+parser.add_argument('--name', action="store", dest='name', default="null")
+parser.add_argument('--replacement', action="store", dest='replacement', default="null")
+args = parser.parse_args()
+target_path = args.target_path
+name = args.name
+replacement = args.replacement
 
+replacements = {
+    name:replacement
+}
+
+if target_path == "null" or name == "null" or replacement == "null":
+    print("Please specify an argument for --target-path --name and --replacement")
+    exit(1)
+
+if os.path.exists(target_path) == False:
+    print("Path does not exist")
+    exit(1)
 
 def get_counts(target_path):
     file_count = 0
@@ -106,3 +124,4 @@ def run_renamer(target_path):
     result_msg = (f'\nOperation completed: '
                   f'{files_renamed} files were renamed.')
     return result_msg
+run_renamer(target_path)
