@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -7,9 +8,10 @@ import file_renamer as fr
 def select_folder():
     global target_path
     selected_path = filedialog.askdirectory()
-    target_path.set(selected_path)
-    target_path_text.delete(1.0, END)
-    target_path_text.insert(1.0, selected_path)
+    if selected_path:
+        target_path.set(selected_path)
+        target_path_text.delete(1.0, END)
+        target_path_text.insert(1.0, selected_path)
 
 
 def add_replacement_key():
@@ -43,10 +45,10 @@ def set_replacements():
         fr.replacements[key] = value
 
 
-def apply_rename():
+def apply_rename(path):
     set_case()
     set_replacements()
-    fr.run_renamer(target_path)
+    fr.run_renamer(path)
 
 
 def invalid_replacements():
@@ -61,29 +63,38 @@ def confirm_rename():
     modal_root = Tk()
     modal_root.attributes('-topmost', True)
     modal_root.title("Confirm Rename")
-    modal_frame = ttk.Frame(
-        modal_root, padding="12 12 12 12")
-    modal_frame.grid(column=0, row=0)
-    if not target_path.get():
-        empty_path_msg = (
+    modal_frame = ttk.Frame(modal_root)
+    modal_frame.grid(column=0, row=0, padx=12, pady=12)
+
+    # set 'path' to 'target_path' (if set via 'Browse' button)
+    # or to 'target_path_text' value (if user typed in path)
+    path = (target_path.get() if target_path.get()
+            else target_path_text.get(1.0, END))
+    path = path.strip()
+
+    # notify user if they selected an invalid path
+    if not os.path.exists(path):
+        invalid_path_msg = (
             "You must specify a valid target directory. Please try again.")
-        ttk.Label(modal_frame, text=empty_path_msg).grid(column=0, row=1)
+        ttk.Label(modal_frame, text=invalid_path_msg).grid(column=0, row=1)
         ttk.Button(
             modal_frame, text="Okay", command=modal_root.destroy).grid(
-                sticky=E, column=0, row=2, pady=(12, 0))
+                sticky=E, column=0, row=2, pady=(16, 0))
         return
+
+    # notify user if they left any 'replacements' field blank
     if invalid_replacements():
         invalid_replacements_msg = (
-            "Every 'Target' and 'Replacement' must have a value.")
+            "Each 'Target' and 'Replacement' must be given a value.")
         ttk.Label(modal_frame, text=invalid_replacements_msg).grid(
             column=0, row=1)
         ttk.Button(
             modal_frame, text="Okay", command=modal_root.destroy).grid(
-                sticky=E, column=0, row=2, pady=(12, 0))
+                sticky=E, column=0, row=2, pady=(16, 0))
         return
     # get total files & dirs that will be inspected
-    file_count, dir_count = fr.get_counts(target_path.get())
-    no_files_msg = '\nNo files found. Please select another directory.'
+    file_count, dir_count = fr.get_counts(path)
+    no_files_msg = 'No files found. Please select another directory.'
     if file_count > 0:
         singular_subdir_string = 'sub-directory'
         plural_subdir_string = 'sub-directories'
@@ -93,27 +104,27 @@ def confirm_rename():
         subdirs_string = f', including {dir_count} {subdir_string},'
         count_string = (f'\n{file_count} files'
                         f'{subdirs_string if dir_count else ""} '
-                        'will be affected.\n')
+                        'will be inspected.\n')
         files_msg = count_string if file_count else no_files_msg
         # this will be rendered on the confirm modal
-        confirm_message = (f'\nSelected target directory: {target_path.get()}'
+        confirm_message = (f'Selected target directory: {path}'
                            f'\n{files_msg}'
                            '\nAre you sure you wish to proceed '
                            'with this rename operation?')
         ttk.Label(modal_frame, text=confirm_message).grid(
-            column=0, row=1, pady=(0, 12))
+            column=0, row=1, pady=(0, 16))
         ttk.Button(
             modal_frame, text="Confirm",
-            command=lambda: [apply_rename(), modal_root.destroy()]).grid(
+            command=lambda: [apply_rename(path), modal_root.destroy()]).grid(
                 sticky=E, column=0, row=2)
         ttk.Button(
             modal_frame, text="Cancel", command=modal_root.destroy).grid(
-                sticky=E, column=1, row=2, padx=(12, 0))
+                sticky=E, column=1, row=2, padx=(16, 0))
     else:
         ttk.Label(modal_frame, text=no_files_msg).grid(column=0, row=1)
         ttk.Button(
             modal_frame, text="Okay", command=modal_root.destroy).grid(
-                sticky=E, column=0, row=2, pady=(12, 0))
+                sticky=E, column=0, row=2, pady=(16, 0))
 
 
 # these hold the StringVars that will comprise the key/value pairs for
@@ -124,8 +135,8 @@ replacement_values = []
 root = Tk()
 root.title("File Renamer")
 
-mainframe = ttk.Frame(root, padding="12 12 12 12")
-mainframe.grid(column=0, row=0)
+mainframe = ttk.Frame(root)
+mainframe.grid(column=0, row=0, padx=12, pady=12)
 
 # target folder
 target_path = StringVar()

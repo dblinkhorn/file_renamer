@@ -6,28 +6,6 @@ import json
 from datetime import datetime
 import argparse
 
-# Define the parser
-parser = argparse.ArgumentParser(description='parse arguments from cli')
-
-parser.add_argument('--target-path', action="store", dest='target_path', default="null")
-parser.add_argument('--name', action="store", dest='name', default="null")
-parser.add_argument('--replacement', action="store", dest='replacement', default="null")
-args = parser.parse_args()
-target_path = args.target_path
-name = args.name
-replacement = args.replacement
-
-replacements = {
-    name:replacement
-}
-
-if target_path == "null" or name == "null" or replacement == "null":
-    print("Please specify an argument for --target-path --name and --replacement")
-    exit(1)
-
-if os.path.exists(target_path) == False:
-    print("Path does not exist")
-    exit(1)
 
 def get_counts(target_path):
     file_count = 0
@@ -39,6 +17,75 @@ def get_counts(target_path):
         file_count += len(files)
         dir_count += len(dirs)
     return [file_count, dir_count]
+
+
+# only run parser logic if file is run as a script
+if __name__ == '__main__':
+    # define the parser
+    parser = argparse.ArgumentParser(description='Parse arguments from CLI.')
+
+    # define arguments
+    parser.add_argument('--target-path', action="store",
+                        dest='target_path', default="null")
+    parser.add_argument('--string', action="store",
+                        dest='string', default="null")
+    parser.add_argument('--replacement', action="store",
+                        dest='replacement', default="null")
+    parser.add_argument('--lowercase', action="store",
+                        dest='lowercase', default=False)
+    parser.add_argument('--uppercase', action="store",
+                        dest='uppercase', default=False)
+
+    args = parser.parse_args()
+
+    # set arguments
+    target_path = args.target_path
+    string = args.string
+    replacement = args.replacement
+    lowercase = args.lowercase
+    uppercase = args.uppercase
+
+    replacements = {
+        string: replacement
+    }
+
+    if target_path == "null" or string == "null" or replacement == "null":
+        print(("Please specify an argument for "
+               "--target-path, --string, and --replacement."))
+        sys.exit()
+
+    if not os.path.exists(target_path):
+        print("Path does not exist.")
+        sys.exit()
+
+    # get
+    file_count, dir_count = get_counts(target_path)
+
+else:
+    target_path = ''
+
+    # substring/regex replacements rules will be built here in UI
+    replacements = {}
+
+    lowercase = False
+    uppercase = False
+
+
+def set_confirmation(target_path, file_count, dir_count):
+    print(f'\nSelected target directory: {target_path}')
+    subdirs_string = f', including {dir_count} sub-directories,'
+    count_string = (f'\n{file_count} files'
+                    f'{subdirs_string if dir_count else ""} '
+                    'will be inspected.\n')
+    if file_count:
+        print(count_string)
+    else:
+        print('\nOperation aborted: No files found.')
+        sys.exit()
+    confirm_string = ('Are you sure you wish to proceed '
+                      'with rename operation? (y/n): ')
+    confirm_input = input(confirm_string)
+    return confirm_input.lower() == 'y' or confirm_input.lower() == 'yes'
 
 
 def perform_rename(path, replacements, lowercase=False,
@@ -108,20 +155,29 @@ def perform_rename(path, replacements, lowercase=False,
     return directory
 
 
-lowercase = False
-uppercase = False
-
-
 def run_renamer(target_path):
-    result = perform_rename(target_path, replacements,
-                            lowercase, uppercase)
-    timestamp = result['timestamp']
-    # create log file
-    with open(f'renamer_log--{timestamp}.json', 'a') as log:
-        log.write(json.dumps(result, indent=4, default=str))
-    files_renamed = (result['files_renamed']
-                     if result['files_renamed'] > 0 else "No")
-    result_msg = (f'\nOperation completed: '
-                  f'{files_renamed} files were renamed.')
-    return result_msg
-run_renamer(target_path)
+    def rename():
+        result = perform_rename(target_path, replacements,
+                                lowercase, uppercase)
+        timestamp = result['timestamp']
+        # create log file
+        with open(f'renamer_log--{timestamp}.json', 'a') as log:
+            log.write(json.dumps(result, indent=4, default=str))
+        files_renamed = (result['files_renamed']
+                         if result['files_renamed'] > 0 else "No")
+        result_msg = (f'\nOperation completed: '
+                      f'{files_renamed} files were renamed.')
+        return result_msg
+    if __name__ == '__main__':
+        is_confirmed = set_confirmation(target_path, file_count, dir_count)
+        if is_confirmed:
+            result_msg = rename()
+            print(result_msg)
+        else:
+            print('\nOperation aborted: Failed to confirm.')
+    else:
+        return rename()
+
+
+if __name__ == '__main__':
+    run_renamer(target_path)
