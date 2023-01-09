@@ -6,9 +6,13 @@ import file_renamer as fr
 
 
 def select_folder():
+    '''Sets 'target_path' to user-selected
+    directory from 'askdirectory()' prompt'''
     global target_path
     selected_path = filedialog.askdirectory()
+
     if selected_path:
+        # set and sync values for 'target_path' and 'target_path_text' widget
         target_path.set(selected_path)
         target_path_text.delete(1.0, END)
         target_path_text.insert(1.0, selected_path)
@@ -23,6 +27,7 @@ def add_replacement_key():
 
 
 def add_replacement_value():
+    # each 'replacement_value" Entry widget will get a StringVar in below list
     replacement_values.append(StringVar())
     ttk.Entry(
         replacement_frame,
@@ -38,7 +43,7 @@ def set_case():
 
 
 def set_replacements():
-    # build replacements dictionary from user input
+    '''Builds 'replacements' dictionary from user input'''
     for key, value in zip(replacement_keys, replacement_values):
         key = key.get()
         value = value.get()
@@ -46,23 +51,34 @@ def set_replacements():
 
 
 def apply_rename(path):
+    '''Wrapper function that accepts a path. Sets the casing values and
+    replacements and runs 'run_renamer()'.'''
     set_case()
     set_replacements()
     fr.run_renamer(path)
 
 
 def invalid_replacements():
+    '''Returns True if any replacement keys or replacement
+    values widgets are left blank.'''
     invalid = False
+
     for key, value in zip(replacement_keys, replacement_values):
         if not key.get() or not value.get():
             invalid = True
+
     return invalid
 
 
 def confirm_rename():
+    '''Creates confirmation modal which '''
     modal_root = Tk()
+
+    # place modal on top of base app
     modal_root.attributes('-topmost', True)
     modal_root.title("Confirm Rename")
+
+    # create frame to contain widgets
     modal_frame = ttk.Frame(modal_root)
     modal_frame.grid(column=0, row=0, padx=12, pady=12)
 
@@ -82,7 +98,7 @@ def confirm_rename():
                 sticky=E, column=0, row=2, pady=(16, 0))
         return
 
-    # notify user if they left any 'replacements' field blank
+    # notify user if they left any 'replacements' fields blank
     if invalid_replacements():
         invalid_replacements_msg = (
             "Each 'Target' and 'Replacement' must be given a value.")
@@ -92,9 +108,12 @@ def confirm_rename():
             modal_frame, text="Okay", command=modal_root.destroy).grid(
                 sticky=E, column=0, row=2, pady=(16, 0))
         return
+
     # get total files & dirs that will be inspected
     file_count, dir_count = fr.get_counts(path)
+
     no_files_msg = 'No files found. Please select another directory.'
+
     if file_count > 0:
         singular_subdir_string = 'sub-directory'
         plural_subdir_string = 'sub-directories'
@@ -120,6 +139,7 @@ def confirm_rename():
         ttk.Button(
             modal_frame, text="Cancel", command=modal_root.destroy).grid(
                 sticky=E, column=1, row=2, padx=(16, 0))
+    # notify the user that they selected a path with no files
     else:
         ttk.Label(modal_frame, text=no_files_msg).grid(column=0, row=1)
         ttk.Button(
@@ -145,6 +165,7 @@ target_path_text.grid(column=0, row=1, padx=(12, 0))
 target_path_label = ttk.Label(
     mainframe, text='1. Select target folder:').grid(
         sticky=W, column=0, row=0)
+# button opens file browser
 select_folder_btn = ttk.Button(
     mainframe, text="Browse", command=select_folder).grid(
         column=1, row=1, padx=(12, 0))
@@ -152,11 +173,12 @@ select_folder_btn = ttk.Button(
 # force case
 case_value = StringVar()
 case_value.set(None)
+
+case_label = ttk.Label(mainframe, text="2. Force case (optional):").grid(
+    sticky=W, column=0, row=2, pady=(18, 0))
 lowercase_check = Radiobutton(
     mainframe, text=" Lowercase", variable=case_value,
     value="lowercase").grid(column=0, row=3, sticky=W)
-lowercase_label = ttk.Label(mainframe, text="2. Force case (optional):").grid(
-    sticky=W, column=0, row=2, pady=(18, 0))
 uppercase_check = Radiobutton(
     mainframe, text=" Uppercase", variable=case_value,
     value="uppercase").grid(column=0, row=4, sticky=W)
@@ -176,6 +198,7 @@ replacement_value_label = ttk.Label(
     replacement_frame, text="Replacement:").grid(
         sticky=W, column=1, row=0, padx=12)
 
+# adds another pair of replacement key/value Entry widgets
 replacement_add_btn = ttk.Button(
     mainframe, text="Add",
     command=lambda: [add_replacement_key(), add_replacement_value()]).grid(
@@ -186,6 +209,7 @@ apply_rename_btn = ttk.Button(
     mainframe, text="Apply", command=confirm_rename).grid(
         sticky=SE, column=1, row=6)
 
+# add one replacement key/value Entry pair on load
 add_replacement_key()
 add_replacement_value()
 
