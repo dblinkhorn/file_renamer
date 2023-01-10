@@ -5,9 +5,9 @@ from tkinter import filedialog
 import file_renamer as fr
 
 
-def select_folder():
+def select_directory():
     '''Sets 'target_path' to user-selected
-    directory from 'askdirectory()' prompt'''
+    directory from 'filedialog.askdirectory()' prompt.'''
     global target_path
     selected_path = filedialog.askdirectory()
 
@@ -19,15 +19,16 @@ def select_folder():
 
 
 def add_replacement_key():
+    '''Adds a replacement key Entry widget to 'replacement_frame'.'''
+    # Entry widget value will be bound to the StringVar appended below
     replacement_keys.append(StringVar())
-    # entry value will be bound to the StringVar appended above
     ttk.Entry(
         replacement_frame, textvariable=replacement_keys[-1], width=15).grid(
         column=0, row=len(replacement_keys)+1, pady=4)
 
 
 def add_replacement_value():
-    # each 'replacement_value" Entry widget will get a StringVar in below list
+    '''Adds a replacement value Entry widget to 'replacement_frame'.'''
     replacement_values.append(StringVar())
     ttk.Entry(
         replacement_frame,
@@ -36,6 +37,7 @@ def add_replacement_value():
 
 
 def set_case():
+    '''Sets case values in 'file_renamer.py'.'''
     if case_value.get() == 'lowercase':
         fr.lowercase = True
     if case_value.get() == 'uppercase':
@@ -43,7 +45,7 @@ def set_case():
 
 
 def set_replacements():
-    '''Builds 'replacements' dictionary from user input'''
+    '''Builds 'replacements' dictionary from user input.'''
     for key, value in zip(replacement_keys, replacement_values):
         key = key.get()
         value = value.get()
@@ -51,8 +53,8 @@ def set_replacements():
 
 
 def apply_rename(path):
-    '''Wrapper function that accepts a path. Sets the casing values and
-    replacements and runs 'run_renamer()'.'''
+    '''Wrapper function that accepts a path. Runs 'set_case()',
+    'set_replacements()', and 'run_renamer()'.'''
     set_case()
     set_replacements()
     fr.run_renamer(path)
@@ -71,7 +73,9 @@ def invalid_replacements():
 
 
 def confirm_rename():
-    '''Creates confirmation modal which '''
+    '''Creates confirmation modal which displays to user the number of files
+    and directories that will be inspected. Also notifies user if
+    'target_path' is invalid or contains no files.'''
     modal_root = Tk()
 
     # place modal on top of base app
@@ -158,23 +162,23 @@ root.title("File Renamer")
 mainframe = ttk.Frame(root)
 mainframe.grid(column=0, row=0, padx=12, pady=12)
 
-# target folder
+# target directory
 target_path = StringVar()
 target_path_text = Text(mainframe, height=1, width=50)
 target_path_text.grid(column=0, row=1, padx=(12, 0))
 target_path_label = ttk.Label(
-    mainframe, text='1. Select target folder:').grid(
+    mainframe, text='1. Select target directory:').grid(
         sticky=W, column=0, row=0)
-# button opens file browser
-select_folder_btn = ttk.Button(
-    mainframe, text="Browse", command=select_folder).grid(
+# button opens directory browser
+select_directory_btn = ttk.Button(
+    mainframe, text="Browse", command=select_directory).grid(
         column=1, row=1, padx=(12, 0))
 
-# force case
+# enforce casing
 case_value = StringVar()
 case_value.set(None)
 
-case_label = ttk.Label(mainframe, text="2. Force case (optional):").grid(
+case_label = ttk.Label(mainframe, text="2. Enforce casing (optional):").grid(
     sticky=W, column=0, row=2, pady=(18, 0))
 lowercase_check = Radiobutton(
     mainframe, text=" Lowercase", variable=case_value,

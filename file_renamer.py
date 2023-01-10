@@ -8,6 +8,8 @@ import argparse
 
 
 def get_counts(target_path):
+    '''Accepts a path. Returns the number of files and sub-directories
+    contained in the path.'''
     file_count = 0
     dir_count = 0  # count does not include 'target_path' directory
 
@@ -67,11 +69,11 @@ if is_script:
     # get counts of inspected file and directories
     file_count, dir_count = get_counts(target_path)
 
-# set when run as a module
+# set if file is run as a module
 else:
     target_path = ''
 
-    # substring/regex replacement rules will be built here in UI
+    # substring/regex replacement rules will be built here from UI
     replacements = {}
 
     lowercase = False
@@ -79,8 +81,9 @@ else:
 
 
 def set_confirmation(target_path, file_count, dir_count):
-    '''Used when run as a script to display to user the number of files and
-    directories that will be inspected. Returns True if user confirms.'''
+    '''Accepts a path, file count, and a directory count. Used when run as a
+    script to display to user the number of files and directories that will be
+    inspected. Returns True if user confirms.'''
 
     print(f'\nSelected target directory: {target_path}')
 
@@ -104,12 +107,12 @@ def set_confirmation(target_path, file_count, dir_count):
 
 def perform_rename(path, replacements, lowercase=False,
                    uppercase=False, base_log=None):
-    '''Performs the rename logic as well as setting up the JSON log data.
-    Takes the target path, optional lowercase or uppercase forcing arguments.
+    '''Accepts a path and optional lowercase or uppercase enforcement arguments.
+    Performs the rename logic as well as setting up the JSON log data.
     'base_log' is used to pass the base JSON log data to the recursive calls.'''
-    # raise an error if user passed True for
+    # raise a ValueError if user passed True for
     # 'lowercase' AND 'uppercase' arguments
-    if lowercase is True and uppercase is True:
+    if lowercase and uppercase:
         error_string = ("'lowercase' OR 'uppercase' argument can be True, "
                         'but not both.')
         raise ValueError(error_string)
@@ -184,7 +187,7 @@ def run_renamer(target_path):
     '''Accepts a path argument. Performs rename operation and displays summary
     information to the user.'''
     def rename():
-        # result will be JSON log object
+        # result will be set JSON log object
         result = perform_rename(target_path, replacements,
                                 lowercase, uppercase)
 
