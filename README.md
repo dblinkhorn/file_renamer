@@ -11,11 +11,9 @@ following values within `file_renamer.py`:
     to be replaced in an inspected file's name. The values of the dictionary will the values you
     want to replace the substring or regex pattern (key) with. For example, if you specify this:
 
-         ```
          replacements = {
              "aloha": "hello"
          }
-         ```
 
     ...then any inspected file containing the substring `aloha` in its name will have that sub-
     string replaced with `hello`. If you have a file whose name is `aloha_world.txt` then the new
