@@ -39,8 +39,8 @@ Then you can run the UI:
 python renamer_ui.py
 ```
 
-When the script is run you will be shown the total number of files and directories to be inspected,
-and asked to confirm the rename operation. If no files are found, the script will auto-abort.
-Hidden files and directores will not be inspected, nor will directory names be affected. Once a
+During execution you will be shown the total number of files and directories to be inspected,
+and asked to confirm the rename operation. If no files are found, the program will auto-abort.
+Hidden files and directores will _not_ be inspected, nor will directory names be affected. Once a
 successful rename operation has been performed, a JSON log file will be created in the same
 directory that contains the script.
