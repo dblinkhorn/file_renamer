@@ -1,36 +1,9 @@
 ## File Renamer
 
 This script inspects a target directory and will evaluate all files in the directory, and in all
-sub-directories, and rename any file whose name matches user-specified rename rules. If you are
-using this script from the command line, before running the script, you will need to specify the
-following values within `file_renamer.py`:
+sub-directories, and rename any file whose name matches user-specified rename rules.
 
--   `target_path`: This is the root folder the script will inspect.
-
--   `replacements`: The keys of this dictionary will be substrings or regex patterns that you want
-    to be replaced in an inspected file's name. The values of the dictionary will the values you
-    want to replace the substring or regex pattern (key) with. For example, if you specify this:
-
-    ```python
-    replacements = {
-        "aloha": "hello"
-    }
-    ```
-
-    ...then any inspected file containing the substring `aloha` in its name will have that sub-
-    string replaced with `hello`. If you have a file whose name is `aloha_world.txt` then the new
-    file name would be `hello_world.txt`.
-
--   `lowercase`: Can be `True` or `False`. If this is set to 'True', then an inspected file's new
-    name will be forced to lowercase. Only files whose names would also cause them to be renamed by
-    one of the 'replacements' rules will be affected. (default: `False`)
-
--   `uppercase`: Same as above except as uppercase. If you set both 'lowercase' and 'uppercase' to
-    'True' it will throw a ValueError. (default: `False`)
-
-In addition to specifying the above values within the `file_renamer.py` file itself, you can
-also specify these values by using arguments from the command line. This use-case is most
-appropriate for simpler, single character or single string replacements. You can specify the following arguments:
+When running this script you must specify the following arguments:
 
 -   `--target_path`: The target directory to begin renaming files. (default: `None`)
 -   `--string`: Specifies the character(s) in a filename that should be replaced. (default: `None`)
@@ -40,7 +13,31 @@ appropriate for simpler, single character or single string replacements. You can
     lowercase equivalents. (default `False`)
 -   `--uppercase`: Same as above except enforces uppercase.
 
-\*\*\*Setting both `--lowercase` and `--uppercase` will result in a `ValueError`.\*\*\*
+**Setting both `--lowercase` and `--uppercase` to `True` will result in a `ValueError`.**
+
+As an example, if you had a lot of files containing `foo` in the filename, and you wanted to
+replace those instances with `bar` you would run the following:
+
+```
+python file_renamer.py --target_path my_folder --string foo --replacement bar
+```
+
+A file whose name was `foobar.txt` would become `barbar.txt`.
+
+## Renamer UI
+
+You can also run this script using the UI interface. You will first need to install all dependecies
+by running:
+
+```
+pip install -r requirements.txt
+```
+
+Then you can run the UI:
+
+```
+python renamer_ui.py
+```
 
 When the script is run you will be shown the total number of files and directories to be inspected,
 and asked to confirm the rename operation. If no files are found, the script will auto-abort.
