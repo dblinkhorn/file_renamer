@@ -34,11 +34,11 @@ if is_script:
 
     # define arguments
     parser.add_argument(
-        "--target-path", action="store", dest="target_path", default="null"
+        "--target-path", action="store", dest="target_path", default=None
     )
-    parser.add_argument("--string", action="store", dest="string", default="null")
+    parser.add_argument("--string", action="store", dest="string", default=None)
     parser.add_argument(
-        "--replacement", action="store", dest="replacement", default="null"
+        "--replacement", action="store", dest="replacement", default=None
     )
     parser.add_argument("--lowercase", action="store", dest="lowercase", default=False)
     parser.add_argument("--uppercase", action="store", dest="uppercase", default=False)
@@ -54,7 +54,7 @@ if is_script:
 
     replacements = {string: replacement}
 
-    if target_path == "null" or string == "null" or replacement == "null":
+    if target_path == None or string == None or replacement == None:
         print(
             (
                 "Please specify an argument for "
@@ -113,6 +113,7 @@ def perform_rename(path, replacements, lowercase=False, uppercase=False, base_lo
     """Accepts a path and optional lowercase or uppercase enforcement arguments.
     Performs the rename logic as well as setting up the JSON log data.
     'base_log' is used to pass the base JSON log data to the recursive calls."""
+
     # raise a ValueError if user passed True for
     # 'lowercase' AND 'uppercase' arguments
     if lowercase and uppercase:
